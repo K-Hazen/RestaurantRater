@@ -1,6 +1,7 @@
 ﻿using RestaurantRater.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -44,6 +45,40 @@ namespace RestaurantRater.Controllers
             //another method within the web.http library API Controller  -- passing in ModelState because it then brings in the error
             return BadRequest(ModelState); 
         }
+
+        //Get all - grab table from context and return it. Don't need any parameter because we are not filtering we just need everything 
+
+        public async Task<IHttpActionResult> GetAll()
+        {
+            //have to call in the ToListAsync 
+            //have to return Ok because it has to return the task... use ok then pass in "restaurants so it know 
+
+            List<Restaurant> restaurants = await _context.Restaurants.ToListAsync();
+            return Ok(restaurants);
+        }
+
+        //Get by ID
+
+            //Have to pass in Id as parameter because that is what we are looking for 
+            //Access _context (which houses all resturants)
+
+        public async Task<IHttpActionResult> GetById(int id)
+        {
+            Restaurant restaurant = await _context.Restaurants.FindAsync(id);
+
+            //need to check to see if null or not, because FindAsync requires an if found and if null return  
+
+            if (restaurant == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(restaurant);
+        }
+
+        //Put (Update)
+
+        //Delete by ID
 
     }
 }
