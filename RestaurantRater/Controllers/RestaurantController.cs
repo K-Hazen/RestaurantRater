@@ -27,8 +27,8 @@ namespace RestaurantRater.Controllers
         {
             //wrapping in if statement to check and make sure everything is in the model is valid
             //ModelState = checking the annotations in the model 
-            
-            if(ModelState.IsValid && restaurantModel != null) //method is coming from web.http library API Controller 
+
+            if (ModelState.IsValid && restaurantModel != null) //method is coming from web.http library API Controller 
             {
                 //Restaurants is the name of the data table  -- and so we are adding a model into the database (i.e. restaurant)
                 _context.Restaurants.Add(restaurantModel);
@@ -43,11 +43,12 @@ namespace RestaurantRater.Controllers
             }
 
             //another method within the web.http library API Controller  -- passing in ModelState because it then brings in the error
-            return BadRequest(ModelState); 
+            return BadRequest(ModelState);
         }
 
         //Get all - grab table from context and return it. Don't need any parameter because we are not filtering we just need everything 
 
+        [HttpGet]
         public async Task<IHttpActionResult> GetAll()
         {
             //have to call in the ToListAsync 
@@ -59,9 +60,10 @@ namespace RestaurantRater.Controllers
 
         //Get by ID
 
-            //Have to pass in Id as parameter because that is what we are looking for 
-            //Access _context (which houses all resturants)
+        //Have to pass in Id as parameter because that is what we are looking for 
+        //Access _context (which houses all resturants)
 
+        [HttpGet]
         public async Task<IHttpActionResult> GetById(int id)
         {
             Restaurant restaurant = await _context.Restaurants.FindAsync(id);
@@ -77,6 +79,37 @@ namespace RestaurantRater.Controllers
         }
 
         //Put (Update)
+
+        //annotations tells us where parameters are coming from 
+
+       [HttpPut]
+
+       //we can have methods that simply updated just one property (example... just would updated "restaurant name" 
+        public async Task<IHttpActionResult> UpdateRestaurant([FromUri] int id, [FromBody] Restaurant model)
+        {
+            if(ModelState.IsValid && model != null)
+            {
+                Restaurant restaurantDatabaseEntity = await _context.Restaurants.FindAsync(id);
+
+                if(restaurantDatabaseEntity != null)
+                {
+                    //if not null apply these changes... apply it to resturant
+                    restaurantDatabaseEntity.Name = model.Name;
+                    restaurantDatabaseEntity.Rating = model.Rating;
+                    restaurantDatabaseEntity.Style = model.Style;
+                    restaurantDatabaseEntity.DollarSigns = model.DollarSigns;
+
+                    await _context.SaveChangesAsync(); //applies to c# object
+
+                    return Ok();    //but not applied to database until we move through and hit this line of cod 
+                }
+                return NotFound(); //answers the question if rest != null is false... then entity was not found 
+            }
+
+            return BadRequest(ModelState);
+        }
+
+
 
         //Delete by ID
 
