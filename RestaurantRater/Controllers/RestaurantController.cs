@@ -109,9 +109,35 @@ namespace RestaurantRater.Controllers
             return BadRequest(ModelState);
         }
 
-
-
+        [HttpDelete]
         //Delete by ID
+
+        public async Task<IHttpActionResult> DeleteRestaurantByID(int id)
+        {
+            //pulls in restaurant by ID
+
+            var restaurant = await _context.Restaurants.FindAsync(id);
+
+            //checks to see if resturant is null 
+            if (restaurant == null)
+            {
+                return NotFound();
+                //return BadRequest() --> either work
+            }
+
+            _context.Restaurants.Remove(restaurant);
+            
+            //we do this so we know that only one row, one change was pushed out 
+            //Changes go by rows. 5 changes in one row = 1 change.... 1 change 2 different rows = 2 changes 
+
+            //below if statement evaluates to make sure change is happening 
+            if(await _context.SaveChangesAsync() == 1)
+            {
+                return Ok(restaurant);
+            }
+
+            return InternalServerError();
+        }
 
     }
 }
